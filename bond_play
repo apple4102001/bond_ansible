@@ -1,0 +1,4 @@
+---
+- hosts: bond
+  roles:
+    - bond
