@@ -1,0 +1,32 @@
+---
+# tasks file for bond
+- name: configure bond master
+  template:
+    src: /etc/ansible/templates/bond_master
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ master.device }}"
+    mode: '0644'
+    #- name:
+- name: configure bond slaves master
+  lineinfile:
+    path:  "/etc/sysconfig/network-scripts/ifcfg-{{ item.device }}"
+    line: "MASTER={{ master.name }}"
+  with_items:
+    - "{{ slave }}"
+- name: configure bond slaves
+  lineinfile:
+    path:  "/etc/sysconfig/network-scripts/ifcfg-{{ item.device }}"
+    line: "SLAVE=yes"
+  with_items:
+    - "{{ slave }}"
+- name: restart NetworkManager
+  service:
+    name: NetworkManager
+    state: restarted
+- name: start network connections
+  shell:
+    cmd: "nmcli con up {{ master.device }}"
+- name: start network connections
+  shell:
+    cmd: "nmcli con up {{ item.device }}"
+  with_items:
+    - "{{ slave }}"
